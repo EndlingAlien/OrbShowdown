@@ -1,22 +1,30 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
 using UnityEngine;
 
 //attach this to player
 public class PlayerCollisionDetection : MonoBehaviour
 {
+    //can increase with permanent powerup
+    [SerializeField] float pushForce;
+
+    PickUps pickUps;
+    string pickUpName;
+    float oldPushForce;
 
 
     //for powerups
-    private void OnTriggerEnter(Collider other)
+    void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Bounce"))
+        pickUps = FindObjectOfType<PickUps>();
+
+        if (!pickUps.HasPickup)
         {
-            Debug.Log("Has bounce");
+            pickUpName = other.gameObject.tag;
+
+            pickUps.ActivateCorrectPickUp(pickUpName);
             Destroy(other.gameObject);
-            // hasBouncePowerup = true;
-            // StartCoroutine(BounceCountdown());
-            //wheere you call method in powerUps script
         }
     }
 
@@ -25,19 +33,25 @@ public class PlayerCollisionDetection : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Enemy"))
         {
-            //have player apply force to enemy
+            pickUps = FindObjectOfType<PickUps>();
+            if (pickUps.HasPickup && pickUpName == "RPotion" || pickUpName == "Star")
+            {
+                Debug.Log("star tings");
+                oldPushForce = pushForce;
+                pushForce = 25;
+                Debug.Log(oldPushForce);
+                Debug.Log(pushForce);
+            }
+            else if (pickUps.HasPickup && pickUpName == "Rad")
+            {
+                Debug.Log("radiation tings");
+            }
 
-        }//have all powerUp Stuff
-
-        // else if (collision.gameObject.CompareTag("Enemy") && hasBouncePowerup)
-        // {
-        //     Rigidbody enemyRb = collision.gameObject.GetComponent<Rigidbody>();
-        //     Vector3 awayFromPlayer = (collision.gameObject.transform.position - transform.position);
-
-        //     Debug.Log("Player has collided with: " + collision.gameObject.name + ",with power up status set to: " + hasBouncePowerup);
-        //     enemyRb.AddForce(awayFromPlayer * bouncePowerupStrength, ForceMode.Impulse);
-
-        // }
+            Rigidbody enemyRb = collision.gameObject.GetComponent<Rigidbody>();
+            UnityEngine.Vector3 playerPushForce = collision.gameObject.transform.position - transform.position;
+            enemyRb.AddForce(playerPushForce * pushForce, ForceMode.Impulse);
+            Debug.Log("Player Pushed Enemy");
+        }
     }
 
 }

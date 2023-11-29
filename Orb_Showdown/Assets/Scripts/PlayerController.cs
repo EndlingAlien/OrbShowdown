@@ -3,10 +3,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] float speed = 2.5f;
-    [SerializeField] float jumpForce = 10;
-    [SerializeField] float gravityForce = 20;
-    [SerializeField] float downSpeed = 20;
-
+    
     Rigidbody playerRB;
     GameObject focalPoint;
 
@@ -27,7 +24,6 @@ public class PlayerController : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
     }
-
+    
 }

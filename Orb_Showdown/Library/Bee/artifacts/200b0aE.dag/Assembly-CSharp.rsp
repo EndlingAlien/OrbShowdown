@@ -352,9 +352,9 @@
 -r:"Library/Bee/artifacts/200b0aE.dag/UnityEngine.UI.ref.dll"
 "Assets/Scripts/EnemyCollisionDetection.cs"
 "Assets/Scripts/EnemyController.cs"
+"Assets/Scripts/PickUps.cs"
 "Assets/Scripts/PlayerCollisionDetection.cs"
 "Assets/Scripts/PlayerController.cs"
-"Assets/Scripts/PowerUps.cs"
 "Assets/Scripts/RotateCamera.cs"
 "Assets/Scripts/SpawnManager.cs"
 -langversion:9.0

@@ -4,12 +4,15 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Powerup
   - Enemy
-  - Hard Enemy
-  - Bounce
-  - Jump
-  - Rocket
+  - Trophy
+  - Star
+  - BPotion
+  - RPotion
+  - YPotion
+  - Rad
+  - Lightning
+  - Fire
   layers:
   - Default
   - TransparentFX

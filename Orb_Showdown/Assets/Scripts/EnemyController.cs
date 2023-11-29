@@ -6,9 +6,9 @@ using UnityEngine;
 //this makes enemy look at player
 public class EnemyController : MonoBehaviour
 {
-    public float speed = 3.0f;
-    private Rigidbody enemyRb;
-    private GameObject player;
+    [SerializeField] float speed = 3.0f;
+     Rigidbody enemyRb;
+     GameObject player;
 
     // Start is called before the first frame update
     void Start()
