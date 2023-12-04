@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Numerics;
 using UnityEngine;
 
 //attach this to player
@@ -10,12 +7,12 @@ public class PlayerCollisionDetection : MonoBehaviour
     [SerializeField] float pushForce;
     public float PushForce { set { pushForce = value; } }
 
+    float oldPushForce;
+    public float OldPushForce { get { return oldPushForce; } }
+
     PickUps pickUps;
     Rigidbody enemyRb;
     string pickUpName;
-
-    float oldPushForce;
-    public float OldPushForce { get { return oldPushForce; } }
 
 
     //for powerups
@@ -28,7 +25,8 @@ public class PlayerCollisionDetection : MonoBehaviour
             pickUpName = other.gameObject.tag;
             oldPushForce = pushForce;
             pickUps.ActivateCorrectPickUp(pickUpName);
-            //UnityEngine.Vector3 playerToEnemy = enemyRb.position - transform.position;
+            //failSafe fo when player picks up poweup
+            //Vector3 playerToEnemy = enemyRb.position - transform.position;
             //enemyRb.AddForce(playerToEnemy.normalized * 0.5f, ForceMode.Impulse);
             Destroy(other.gameObject);
         }
@@ -49,12 +47,9 @@ public class PlayerCollisionDetection : MonoBehaviour
                 }
             }
             enemyRb = collision.gameObject.GetComponent<Rigidbody>();
-            UnityEngine.Vector3 playerPushForce = collision.gameObject.transform.position - transform.position;
+            Vector3 playerPushForce = collision.gameObject.transform.position - transform.position;
             enemyRb.AddForce(playerPushForce * pushForce, ForceMode.Impulse);
         }
     }
-
-
-
 
 }

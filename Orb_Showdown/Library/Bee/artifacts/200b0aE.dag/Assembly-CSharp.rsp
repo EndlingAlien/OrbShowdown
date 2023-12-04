@@ -355,6 +355,7 @@
 "Assets/Scripts/PickUps.cs"
 "Assets/Scripts/PlayerCollisionDetection.cs"
 "Assets/Scripts/PlayerController.cs"
+"Assets/Scripts/Rockets.cs"
 "Assets/Scripts/RotateCamera.cs"
 "Assets/Scripts/SpawnManager.cs"
 -langversion:9.0

@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 1085305252562646941}
   - component: {fileID: 1308029717}
   - component: {fileID: 7470144250959114498}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Brute
   m_TagString: Enemy
   m_Icon: {fileID: 0}

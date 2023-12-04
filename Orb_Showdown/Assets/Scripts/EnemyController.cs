@@ -1,12 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-//attach to each enemy prefab
-//this makes enemy look at player
 public class EnemyController : MonoBehaviour
 {
     [SerializeField] float moveSpeed = 3.0f;
+    public float MoveSpeed { get { return moveSpeed; } set { moveSpeed = value; } }
 
     bool hasTurned;
     public bool HasTurned { set { hasTurned = value; } }
@@ -15,20 +12,21 @@ public class EnemyController : MonoBehaviour
     Animator animator;
     GameObject player;
     PickUps pickUps;
-    Vector3 lookDirection;
+    SpawnManager spawnManager;
 
+    Vector3 lookDirection;
     Transform target;
 
-    // Start is called before the first frame update
+
     void Start()
     {
         enemyRb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
         player = GameObject.Find("Player");
         pickUps = FindObjectOfType<PickUps>();
+        spawnManager = FindObjectOfType<SpawnManager>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         ActivateAnimation(hasTurned);
@@ -43,21 +41,22 @@ public class EnemyController : MonoBehaviour
             LookAtPlayer();
         }
 
+        KillEnemy();
+    }
 
-        if (transform.position.y < -10)
+    void ActivateAnimation(bool value)
+    {
+        if (!pickUps.RadActive)
         {
-            Destroy(gameObject);
+            animator.SetBool("hasTurned", value);
+            gameObject.tag = "Enemy";
+        }
+        else if (pickUps.RadActive && hasTurned)
+        {
+            animator.SetBool("hasTurned", value);
+            gameObject.tag = "TurnedEnemy";
         }
     }
-
-    void LookAtPlayer()
-    {
-        target = player.transform;
-        lookDirection = (target.position - transform.position).normalized;
-        // Apply force for rolling
-        enemyRb.AddForce(lookDirection * moveSpeed, ForceMode.Impulse);
-    }
-
 
     void FindClosestEnemyOrRun()
     {
@@ -93,19 +92,20 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-
-
-    void ActivateAnimation(bool value)
+    void LookAtPlayer()
     {
-        if (!pickUps.RadActive)
+        target = player.transform;
+        lookDirection = (target.position - transform.position).normalized;
+        // Apply force for rolling
+        enemyRb.AddForce(lookDirection * moveSpeed, ForceMode.Impulse);
+    }
+
+    void KillEnemy()
+    {
+        if (transform.position.y < -10)
         {
-            animator.SetBool("hasTurned", value);
-            gameObject.tag = "Enemy";
-        }
-        else if (pickUps.RadActive && hasTurned)
-        {
-            animator.SetBool("hasTurned", value);
-            gameObject.tag = "TurnedEnemy";
+            spawnManager.RemoveEnemyFromList(gameObject);
+            Destroy(gameObject);
         }
     }
 

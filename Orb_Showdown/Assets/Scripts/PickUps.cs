@@ -1,81 +1,62 @@
 using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class PickUps : MonoBehaviour
 {
-    bool hasPickup = false;
+
+    #region Variables
+
+    [SerializeField] GameObject rocketPrefab;
+    [SerializeField] float starForce = 12;
+    [SerializeField] float redPotionForce = 5;
+
+    bool hasPickup;
     public bool HasPickup { get { return hasPickup; } }
 
-    bool radActive = false;
+    bool radActive;
     public bool RadActive { get { return radActive; } }
 
-    float starForce = 12;
-    float redPotionForce = 5;
-
     float oldPushForce;
-    public float followSpeed = 5f;
+    float oldMoveSpeed;
+    float indicatorHeight;
+    bool rocketsActive;
 
-
-
+    Coroutine rocketsCoroutine;
     Vector3 indicatorPos;
+
     GameObject player;
     PlayerCollisionDetection playerCollision;
     PlayerController playerController;
-    float indicatorHeight;
+    EnemyController enemy;
+
+    #endregion
 
     void Start()
     {
         player = GameObject.Find("Player");
+        enemy = FindObjectOfType<EnemyController>();
         playerCollision = player.GetComponent<PlayerCollisionDetection>();
         playerController = player.GetComponent<PlayerController>();
+
         indicatorPos = new Vector3(player.transform.position.x, indicatorHeight, player.transform.position.z);
+
+        rocketsActive = false;
+        radActive = false;
         hasPickup = false;
     }
 
     void Update()
     {
-  
-            // Update the indicatorPos to match the player's current position
-            indicatorPos = new Vector3(player.transform.position.x, indicatorHeight, player.transform.position.z);
+        indicatorPos = new Vector3(player.transform.position.x, indicatorHeight, player.transform.position.z);
+        transform.position = indicatorPos;
 
-            transform.position = indicatorPos;
-        
-
-    }
-
-    void FindCorrectIndicator(string name, bool active)
-    {
-        string fullName = name + "_Indicator";
-        foreach (Transform child in transform)
+        if (rocketsActive && rocketsCoroutine == null)
         {
-            if (child.name == fullName)
-            {
-                if (fullName == "YPotion_Indicator")
-                {
-                    indicatorHeight = 0.9f;
-                    child.gameObject.SetActive(active);
-                }
-                else if (fullName == "Star_Indicator")
-                {
-                    indicatorHeight = 0;
-                    child.gameObject.SetActive(active);
-                }
-                else
-                {
-                    indicatorHeight = -0.5f;
-                    child.gameObject.SetActive(active);
-                }
-            }
-            else if (child.name == null)
-            {
-                Debug.Log("COULD NOT FIND INDICATOR");
-            }
+            rocketsCoroutine = StartCoroutine(RocketSpawnCoroutine());
         }
     }
 
-
+    #region PickUp Config
 
     public void ActivateCorrectPickUp(string name)
     {
@@ -103,25 +84,16 @@ public class PickUps : MonoBehaviour
                     StartCoroutine(RedPotionCountdown(name));
                     break;
 
-                case "YPotion":
-                    StartCoroutine(YellowPotionCountdown(name));
-                    break;
-
                 case "Rad":
                     StartCoroutine(RadiationCountdown(name));
                     break;
 
-                //(maybe temporary, not in final version)
                 case "Lightning":
-                    //enemycontroller
-                    //instantiate vfx lightning over all enemies, causing them to not be able to move(stop looking at player, so player could still push and interc=act) for like 4 seconds
-                    //OR cycle through every object in scene holding enemy controller(all enemies in scene) and deactivate it for 4 seconds 
-                    FindCorrectIndicator(name, true);
+                    StartCoroutine(LightningCountdown(name));
                     break;
 
                 case "Fire":
-                    //shoot simple little rockets that target the closest enemy(was in realm pathfinder project) and push them back a bit, should cause force, make script for rockets, include simple lil vfx(make it tiny balls)
-                    FindCorrectIndicator(name, true);
+                    StartCoroutine(FireCountdown(name));
                     break;
 
                 default:
@@ -133,7 +105,36 @@ public class PickUps : MonoBehaviour
         }
     }
 
+    void FindCorrectIndicator(string name, bool active)
+    {
+        string fullName = name + "_Indicator";
+        foreach (Transform child in transform)
+        {
+            if (child.name == fullName)
+            {
+                if (fullName == "Star_Indicator")
+                {
+                    indicatorHeight = 0;
+                    child.gameObject.SetActive(active);
+                }
+                else
+                {
+                    indicatorHeight = -0.5f;
+                    child.gameObject.SetActive(active);
+                }
+            }
+            else if (child.name == null)
+            {
+                Debug.Log("COULD NOT FIND INDICATOR");
+            }
+        }
+    }
 
+    #endregion
+
+    #region Coroutines
+
+    //upgrade duration
     IEnumerator StarCountdown(string name)
     {
         FindCorrectIndicator(name, true);
@@ -144,55 +145,74 @@ public class PickUps : MonoBehaviour
         hasPickup = false;
     }
 
+    //upgrade force
     IEnumerator RedPotionCountdown(string name)
     {
         FindCorrectIndicator(name, true);
         StoreAndSetPushForce(playerCollision.OldPushForce, redPotionForce, true);
-        yield return new WaitForSeconds(8);
+        yield return new WaitForSeconds(15);
         StoreAndSetPushForce(oldPushForce, 0, false);
         FindCorrectIndicator(name, false);
         hasPickup = false;
     }
 
+    //upgrade duration
     IEnumerator RadiationCountdown(string name)
     {
         radActive = true;
         FindCorrectIndicator(name, true);
-        yield return new WaitForSeconds(15);
+        yield return new WaitForSeconds(8);
         FindCorrectIndicator(name, false);
         radActive = false;
         hasPickup = false;
     }
 
+    //cant upgrade
     IEnumerator BluePotionCountdown(string name)
     {
         playerController.ActivatePickupEffect("isBlue", true);
         FindCorrectIndicator(name, true);
-        yield return new WaitForSeconds(10);
+        yield return new WaitForSeconds(15);
         playerController.ActivatePickupEffect("isNotBlue", false);
         FindCorrectIndicator(name, false);
         hasPickup = false;
     }
 
-    IEnumerator YellowPotionCountdown(string name)
+    //cant upgrade
+    IEnumerator LightningCountdown(string name)
     {
-        //work on this
-        //player and indicator both jitter
-        yield return playerController.LerpYPosition(5, 10);
-        // yield return new WaitForSeconds(10);
-        hasPickup = false;
-    }
-
-
-
-
-    IEnumerator BounceCountdown(string name)
-    {
-        //method for actual bounce mechanism is
-        yield return new WaitForSeconds(5);
+        FindCorrectIndicator(name, true);
+        StoreAndSetMoveSpeed(enemy.MoveSpeed, true);
+        yield return new WaitForSeconds(6);
+        StoreAndSetMoveSpeed(oldMoveSpeed, false);
         FindCorrectIndicator(name, false);
         hasPickup = false;
     }
+
+    //upgrade force(rocket speed)
+    IEnumerator FireCountdown(string name)
+    {
+        rocketsActive = true;
+        FindCorrectIndicator(name, true);
+        yield return new WaitForSeconds(10);
+        rocketsActive = false;
+        FindCorrectIndicator(name, false);
+        hasPickup = false;
+    }
+
+    IEnumerator RocketSpawnCoroutine()
+    {
+        while (rocketsActive)
+        {
+            GameObject newRocket = Instantiate(rocketPrefab, transform.position, Quaternion.identity);
+            yield return new WaitForSeconds(.5f);
+        }
+        rocketsCoroutine = null;
+    }
+
+    #endregion
+
+    #region Store and Set Variable Methods
 
     void StoreAndSetPushForce(float oldForce, float newForce, bool changeValue)
     {
@@ -205,17 +225,31 @@ public class PickUps : MonoBehaviour
         {
             playerCollision.PushForce = oldForce;
         }
-
     }
 
+    void StoreAndSetMoveSpeed(float oldSpeed, bool changeValue)
+    {
+        EnemyController[] enemyControllers = FindObjectsOfType<EnemyController>();
+        if (changeValue)
+        {
+            oldMoveSpeed = oldSpeed;
+            foreach (EnemyController enemy in enemyControllers)
+            {
+                Rigidbody rb = enemy.GetComponent<Rigidbody>();
+                rb.velocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+                enemy.MoveSpeed = 0;
+            }
+        }
+        else if (!changeValue)
+        {
+            foreach (EnemyController enemy in enemyControllers)
+            {
+                enemy.MoveSpeed = oldSpeed;
+            }
+        }
+    }
 
-
-
-
-    //for bounce powerup
-    public bool hasBouncePowerup = false;
-    private float bouncePowerupStrength = 15.0f;
-
-
+    #endregion
 
 }
