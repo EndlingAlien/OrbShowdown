@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 1085305252562646941}
   - component: {fileID: 1308029717}
   - component: {fileID: 7470144250959114498}
+  - component: {fileID: 3690587471945870938}
   m_Layer: 7
   m_Name: Brute
   m_TagString: Enemy
@@ -149,3 +150,16 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
+--- !u!114 &3690587471945870938
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1085305252562646940}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cfe3ce2756bd454f8c9f3d8edcdf39e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 0

@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class Rockets : MonoBehaviour
 {
+    //remove serialization in future, can change with pickup upgrade
     [SerializeField] float moveSpeed;
 
     Rigidbody rocketRb;
@@ -11,12 +12,20 @@ public class Rockets : MonoBehaviour
     void Start()
     {
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        GameObject[] bosses = GameObject.FindGameObjectsWithTag("Boss");
+        GameObject[] miniBoss = GameObject.FindGameObjectsWithTag("MiniBoss");
 
-        if (enemies.Length > 0)
+        GameObject[] allEnemies = new GameObject[enemies.Length + bosses.Length + miniBoss.Length];
+        enemies.CopyTo(allEnemies, 0);
+        bosses.CopyTo(allEnemies, enemies.Length);
+        miniBoss.CopyTo(allEnemies, enemies.Length + bosses.Length);
+
+
+        if (allEnemies.Length > 0)
         {
             float minDistance = Mathf.Infinity;
 
-            foreach (GameObject enemy in enemies)
+            foreach (GameObject enemy in allEnemies)
             {
                 float distance = Vector3.Distance(transform.position, enemy.transform.position);
 
@@ -43,7 +52,7 @@ public class Rockets : MonoBehaviour
 
     void OnCollisionEnter(Collision other)
     {
-        if (other.gameObject.CompareTag("Enemy"))
+        if (other.gameObject.CompareTag("Enemy") || other.gameObject.CompareTag("Boss") || other.gameObject.CompareTag("MiniBoss"))
         {
             Destroy(gameObject);
         }

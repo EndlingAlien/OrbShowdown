@@ -6,9 +6,12 @@ public class PickUps : MonoBehaviour
 
     #region Variables
 
+    [Tooltip("Prefab rocket for fire pickup")]
     [SerializeField] GameObject rocketPrefab;
-    [SerializeField] float starForce = 12;
-    [SerializeField] float redPotionForce = 5;
+    [Space(5)]
+
+    [Tooltip("Script refrence to EnemyController")]
+    [SerializeField] EnemyController enemy;
 
     bool hasPickup;
     public bool HasPickup { get { return hasPickup; } }
@@ -16,25 +19,33 @@ public class PickUps : MonoBehaviour
     bool radActive;
     public bool RadActive { get { return radActive; } }
 
+    //remove serialization in the future
+    //Pickup force variables
+    [SerializeField] float starForce = 12;
+    [SerializeField] float redPotionForce = 5;
+
+    //Storage variables
     float oldPushForce;
     float oldMoveSpeed;
-    float indicatorHeight;
-    bool rocketsActive;
 
-    Coroutine rocketsCoroutine;
+    //Indicator variables
     Vector3 indicatorPos;
+    float indicatorHeight;
 
+    //Rocket variables
+    bool rocketsActive;
+    Coroutine rocketsCoroutine;
+
+    //Player variables
     GameObject player;
     PlayerCollisionDetection playerCollision;
     PlayerController playerController;
-    EnemyController enemy;
 
     #endregion
 
     void Start()
     {
         player = GameObject.Find("Player");
-        enemy = FindObjectOfType<EnemyController>();
         playerCollision = player.GetComponent<PlayerCollisionDetection>();
         playerController = player.GetComponent<PlayerController>();
 
@@ -125,7 +136,7 @@ public class PickUps : MonoBehaviour
             }
             else if (child.name == null)
             {
-                Debug.Log("COULD NOT FIND INDICATOR");
+                return;
             }
         }
     }
@@ -212,7 +223,7 @@ public class PickUps : MonoBehaviour
 
     #endregion
 
-    #region Store and Set Variable Methods
+    #region Store and Set Variables
 
     void StoreAndSetPushForce(float oldForce, float newForce, bool changeValue)
     {

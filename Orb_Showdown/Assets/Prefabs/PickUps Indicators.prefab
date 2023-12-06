@@ -49,8 +49,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a72d9dffc12e48aa9d7dcc5616a2f89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  followSpeed: 5
   rocketPrefab: {fileID: 1806406264771925896, guid: 11ade941866f4406691ae4525db53507, type: 3}
+  starForce: 12
+  redPotionForce: 5
+  enemy: {fileID: 1308029717, guid: 5a270cf22fbf94af4b120e4293a77543, type: 3}
 --- !u!1001 &2104556008921222660
 PrefabInstance:
   m_ObjectHideFlags: 0

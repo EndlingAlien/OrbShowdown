@@ -350,14 +350,17 @@
 -r:"Library/Bee/artifacts/200b0aE.dag/Unity.VSCode.Editor.ref.dll"
 -r:"Library/Bee/artifacts/200b0aE.dag/UnityEditor.UI.ref.dll"
 -r:"Library/Bee/artifacts/200b0aE.dag/UnityEngine.UI.ref.dll"
-"Assets/Scripts/EnemyCollisionDetection.cs"
-"Assets/Scripts/EnemyController.cs"
+"Assets/Scripts/Enemy/BodyguardEnemy.cs"
+"Assets/Scripts/Enemy/BruteEnemySpeed.cs"
+"Assets/Scripts/Enemy/EnemyCollisionDetection.cs"
+"Assets/Scripts/Enemy/EnemyController.cs"
 "Assets/Scripts/PickUps.cs"
-"Assets/Scripts/PlayerCollisionDetection.cs"
-"Assets/Scripts/PlayerController.cs"
+"Assets/Scripts/Player/PlayerCollisionDetection.cs"
+"Assets/Scripts/Player/PlayerController.cs"
+"Assets/Scripts/Player/RotateCamera.cs"
 "Assets/Scripts/Rockets.cs"
-"Assets/Scripts/RotateCamera.cs"
 "Assets/Scripts/SpawnManager.cs"
+"Assets/Scripts/UIController.cs"
 -langversion:9.0
 
 /deterministic
