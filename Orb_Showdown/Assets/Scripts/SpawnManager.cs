@@ -29,7 +29,7 @@ public class SpawnManager : MonoBehaviour
     [Header("Script Refrence")]
     [SerializeField] UIController uiController;
 
-    bool playerChoosingPowerup = false;
+    [SerializeField ] bool playerChoosingPowerup = true;
     public bool PlayerChoosingPowerup { set { playerChoosingPowerup = value; } }
 
     List<GameObject> activeEnemies = new List<GameObject>();
