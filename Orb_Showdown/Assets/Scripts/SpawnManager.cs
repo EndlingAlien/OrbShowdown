@@ -6,7 +6,7 @@ public class SpawnManager : MonoBehaviour
 {
     #region Variables
 
-    [Header("Sapwn Configuration")]
+    [Header("Spawn Configuration")]
     [Space(5)]
 
     [Header("Enemy Prefabs")]
@@ -35,28 +35,28 @@ public class SpawnManager : MonoBehaviour
     List<GameObject> activeEnemies = new List<GameObject>();
     List<GameObject> activePickup = new List<GameObject>();
 
-    //Script refrences
+    // Script references
     UIController uiController;
     GameManager gameManager;
     PlayerController playerController;
     PickUps pickups;
 
-    //enemy rounds
+    // Enemy rounds
     [SerializeField] int overallRoundNum = 0;
     public int OverallRoundNum { get { return overallRoundNum; } }
     int bruteRoundNum = 0;
     int bossRoundNum = 0;
     int miniBossRoundNum = 0;
 
-    //range for spawning enemies and pickups
+    // Range for spawning enemies and pickups
     float spawnRange = 9.0f;
 
-    //pickups variables
-    GameObject newpickUp;
+    // Pickup variables
+    GameObject newPickUp;
     bool pauseTime;
     float timeSinceLastPickupSpawn = 0;
 
-    //pickup randomization variables
+    // Pickup randomization variables
     int randomNum;
     int randomIndex;
     Queue<int> pickupHistory = new Queue<int>();
@@ -109,6 +109,7 @@ public class SpawnManager : MonoBehaviour
 
     #region Update Methods
 
+    // Show the appropriate canvas based on the game state
     void ShowCorrectCanvas()
     {
         if (!uiController.PlayerInMenu)
@@ -124,6 +125,7 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
+    // Timer for spawning pickups periodically
     void PickupTimer()
     {
         timeSinceLastPickupSpawn += Time.deltaTime;
@@ -135,6 +137,7 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
+    // Instantiate enemies based on the game round
     void InstantiateCorrectEnemy()
     {
         if (activeEnemies.Count == 0)
@@ -144,6 +147,7 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
+    // Coroutine to update the round and introduce different enemy types
     IEnumerator UpdateRound()
     {
         playerChoosingPowerup = true;
@@ -165,6 +169,7 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
+    // Check for active enemies and pickups to clear them
     void CheckForActive()
     {
         if (activeEnemies.Count > 0)
@@ -188,6 +193,7 @@ public class SpawnManager : MonoBehaviour
 
     #region Enemy Spawn Config
 
+    // Activate a boss fight with increasing numbers of bosses, bodyguards, and minions
     void ActivateBossFight()
     {
         bossRoundNum++;
@@ -202,6 +208,7 @@ public class SpawnManager : MonoBehaviour
         SpawnEnemyWave(minionsNum * bossRoundNum, minionPrefab);
     }
 
+    // Activate a mini-boss fight with increasing numbers of mini-bosses, henchmen, and minions
     void ActivateMiniBossFight()
     {
         miniBossRoundNum++;
@@ -215,6 +222,7 @@ public class SpawnManager : MonoBehaviour
         SpawnEnemyWave(minionsNum * miniBossRoundNum, minionPrefab);
     }
 
+    // Activate brute enemies with increasing numbers based on the game round
     void ActivateBruteEnemy()
     {
         int lastDigit = overallRoundNum % 10;
@@ -223,6 +231,7 @@ public class SpawnManager : MonoBehaviour
         SpawnEnemyWave(bruteRoundNum, brutePrefab);
     }
 
+    // Spawn a wave of enemies with a specified prefab
     void SpawnEnemyWave(int enemiesToSpawn, GameObject prefab)
     {
         for (int i = 0; i < enemiesToSpawn; i++)
@@ -251,6 +260,7 @@ public class SpawnManager : MonoBehaviour
 
     #region Pickup Spawn Config
 
+    // Determine the probability of spawning a pickup and initiate the spawn
     void PickUpProbability()
     {
         randomNum = Random.Range(1, 101);
@@ -269,16 +279,18 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
+    // Spawn a pickup from the provided list, avoiding repetition
     void SpawnPickUp(GameObject[] pickupList)
     {
         if (activePickup.Count >= 2)
         {
             RemovePickUpFromList();
         }
-        AvoidRepetetiveChoice(pickupList);
+        AvoidRepetitiveChoice(pickupList);
     }
 
-    void AvoidRepetetiveChoice(GameObject[] pickupList)
+    // Avoid repetitive pickup choices based on history
+    void AvoidRepetitiveChoice(GameObject[] pickupList)
     {
         int maxAttempts = pickupList.Length;
         int currentAttempt = 0;
@@ -309,10 +321,11 @@ public class SpawnManager : MonoBehaviour
             pickupHistory.Clear();
             previousIndex = -1;
         }
-        newpickUp = Instantiate(pickupList[randomIndex], GenerateSpawnPos(), Quaternion.identity);
-        activePickup.Add(newpickUp);
+        newPickUp = Instantiate(pickupList[randomIndex], GenerateSpawnPos(), Quaternion.identity);
+        activePickup.Add(newPickUp);
     }
 
+    // Remove the oldest pickup from the list
     void RemovePickUpFromList()
     {
         if (activePickup.Count > 0)
@@ -324,6 +337,7 @@ public class SpawnManager : MonoBehaviour
 
     #endregion
 
+    // Generate a random spawn position within the specified range
     Vector3 GenerateSpawnPos()
     {
         float spawnPosX = Random.Range(-spawnRange, spawnRange);
@@ -336,11 +350,13 @@ public class SpawnManager : MonoBehaviour
 
     #region For Scripts
 
+    // Remove an enemy from the active list
     public void RemoveEnemyFromList(GameObject enemyToRemove)
     {
         activeEnemies.Remove(enemyToRemove);
     }
 
+    // Handle player death by clearing enemies and initiating ghost enemy creation
     public void PlayerDeath()
     {
         playerDied = true;
@@ -358,11 +374,13 @@ public class SpawnManager : MonoBehaviour
 
     #region Trophy Pickup
 
+    // Start the routine to delete enemies one by one
     public void StartDeletingEnemies()
     {
         StartCoroutine(DeleteEnemiesRoutine());
     }
 
+    // Coroutine to delete enemies one by one
     IEnumerator DeleteEnemiesRoutine()
     {
         while (activeEnemies.Count > 0)
@@ -374,6 +392,7 @@ public class SpawnManager : MonoBehaviour
         pickups.HasPickup = false;
     }
 
+    // Kill one enemy from the list
     void KillOne()
     {
         if (activeEnemies.Count > 0)

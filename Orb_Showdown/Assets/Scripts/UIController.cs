@@ -21,7 +21,7 @@ public class UIController : MonoBehaviour
     [Space(5)]
 
     [Header("Round Text Elements")]
-    [Tooltip("Refrence to Round Text that will display every round")]
+    [Tooltip("Reference to Round Text that will display every round")]
     [SerializeField] Animator roundTextAnim;
     [Tooltip("Round Text element in corner")]
     [SerializeField] TextMeshProUGUI roundText;
@@ -48,6 +48,7 @@ public class UIController : MonoBehaviour
 
     #region Power and Pickup Canvas Sequence
 
+    // Activate the correct canvas based on the provided choice
     public void ActivateCorrectCanvas(int choice, bool value)
     {
         playerInMenu = true;
@@ -61,18 +62,21 @@ public class UIController : MonoBehaviour
         }
     }
 
+    // Coroutine to resume the game after choosing powerups
     public void DoneChoosingPowerup()
     {
         StartCoroutine(ResumeGame());
         StartCoroutine(ChangeMenuValue());
     }
 
+    // Coroutine to resume the game after a delay
     IEnumerator ResumeGame()
     {
         yield return new WaitForSeconds(1.5f);
         spawnManager.PlayerChoosingPowerup = false;
     }
 
+    // Coroutine to change the menu value after a delay
     IEnumerator ChangeMenuValue()
     {
         yield return new WaitForSeconds(7f);
@@ -81,6 +85,7 @@ public class UIController : MonoBehaviour
 
     #endregion
 
+    // Update the round number and display corresponding text
     public void UpdateRoundNum(int num)
     {
         roundNum = num;
@@ -99,12 +104,14 @@ public class UIController : MonoBehaviour
         roundTextAnim.SetTrigger("playAnim");
     }
 
+    // Activate the death canvas and deactivate the game canvas upon player death
     public void PlayerDeath()
     {
         deathCanvas.SetActive(true);
         gameCanvas.SetActive(false);
     }
 
+    // Restart the game after a delay
     public void RestartGame()
     {
         deathOverlay.SetActive(true);
@@ -112,6 +119,7 @@ public class UIController : MonoBehaviour
         StartCoroutine(WaitForAnimAndReload());
     }
 
+    // Coroutine to wait for the animation to finish and reload the scene
     IEnumerator WaitForAnimAndReload()
     {
         yield return new WaitForSeconds(5);

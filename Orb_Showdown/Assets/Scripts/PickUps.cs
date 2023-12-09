@@ -6,16 +6,18 @@ public class PickUps : MonoBehaviour
 
     #region Variables
 
+    // Prefab for the rocket pickup
     [Tooltip("Prefab rocket for fire pickup")]
     [SerializeField] GameObject rocketPrefab;
     [Space(5)]
 
     [SerializeField] GameObject lightningParticlePrefab;
 
-    [Tooltip("Script refrence to EnemyController")]
+    // Script reference to EnemyController
+    [Tooltip("Script reference to EnemyController")]
     [SerializeField] EnemyController enemy;
 
-    //for GameManager
+    // Variables for GameManager
     float redPotionForce;
     public float RedPotionForce { get { return redPotionForce; } set { redPotionForce = value; } }
 
@@ -25,7 +27,7 @@ public class PickUps : MonoBehaviour
     float starDuration;
     public float StarDuration { get { return starDuration; } set { starDuration = value; } }
 
-    //Pickup variables
+    // Pickup variables
     bool hasPickup;
     public bool HasPickup { get { return hasPickup; } set { hasPickup = value; } }
 
@@ -34,20 +36,20 @@ public class PickUps : MonoBehaviour
 
     float starForce;
 
-    //Storage variables
+    // Storage variables
     float oldPushForce;
     float oldMoveSpeed;
 
-    //Indicator variables
+    // Indicator variables
     Vector3 indicatorPos;
     float indicatorHeight;
 
-    //Rocket variables
+    // Rocket variables
     bool rocketsActive;
     public bool RocketsActive { get { return rocketsActive; } set { rocketsActive = value; } }
     Coroutine rocketsCoroutine;
 
-    //Script Refrences
+    // Script References
     GameObject player;
     PlayerCollisionDetection playerCollision;
     PlayerController playerController;
@@ -57,16 +59,19 @@ public class PickUps : MonoBehaviour
 
     void Start()
     {
+        // Find and set script references
         player = GameObject.Find("Player");
         playerCollision = player.GetComponent<PlayerCollisionDetection>();
         playerController = player.GetComponent<PlayerController>();
         spawnManager = FindObjectOfType<SpawnManager>();
 
+        // Set default values
         SetDefaults();
     }
 
     void SetDefaults()
     {
+        // Set the initial position of the indicator
         indicatorPos = new Vector3(player.transform.position.x, indicatorHeight, player.transform.position.z);
 
         rocketsActive = false;
@@ -81,12 +86,14 @@ public class PickUps : MonoBehaviour
 
     void Update()
     {
+        // Update the indicator position
         if (player != null)
         {
             indicatorPos = new Vector3(player.transform.position.x, indicatorHeight, player.transform.position.z);
             transform.position = indicatorPos;
         }
 
+        // Check if rockets are active and start the coroutine if not already started
         if (rocketsActive && rocketsCoroutine == null)
         {
             rocketsCoroutine = StartCoroutine(RocketSpawnCoroutine());
@@ -101,6 +108,7 @@ public class PickUps : MonoBehaviour
         {
             switch (name)
             {
+                // Activate different pickups based on their names
                 case "Trophy":
                     spawnManager.StartDeletingEnemies();
                     break;
@@ -138,6 +146,7 @@ public class PickUps : MonoBehaviour
 
     void FindCorrectIndicator(string name, bool active)
     {
+        // Find and activate the correct indicator based on the pickup name
         string fullName = name + "_Indicator";
         foreach (Transform child in transform)
         {
@@ -167,6 +176,7 @@ public class PickUps : MonoBehaviour
 
     IEnumerator StarCountdown(string name)
     {
+        // Start the countdown for the Star pickup
         FindCorrectIndicator(name, true);
         StoreAndSetPushForce(playerCollision.OldPushForce, starForce, true);
         yield return new WaitForSeconds(starDuration);
@@ -177,6 +187,7 @@ public class PickUps : MonoBehaviour
 
     IEnumerator RedPotionCountdown(string name)
     {
+        // Start the countdown for the Red Potion pickup
         FindCorrectIndicator(name, true);
         StoreAndSetPushForce(playerCollision.OldPushForce, redPotionForce, true);
         yield return new WaitForSeconds(15);
@@ -187,6 +198,7 @@ public class PickUps : MonoBehaviour
 
     IEnumerator RadiationCountdown(string name)
     {
+        // Start the countdown for the Radiation pickup
         radActive = true;
         FindCorrectIndicator(name, true);
         yield return new WaitForSeconds(radDuration);
@@ -197,6 +209,7 @@ public class PickUps : MonoBehaviour
 
     IEnumerator BluePotionCountdown(string name)
     {
+        // Start the countdown for the Blue Potion pickup
         playerController.ActivatePickupEffect("isBlue", true);
         FindCorrectIndicator(name, true);
         yield return new WaitForSeconds(15);
@@ -207,6 +220,7 @@ public class PickUps : MonoBehaviour
 
     IEnumerator LightningCountdown(string name)
     {
+        // Start the countdown for the Lightning pickup
         FindCorrectIndicator(name, true);
         CreateLightning();
         StoreAndSetMoveSpeed(enemy.MoveSpeed, true);
@@ -218,6 +232,7 @@ public class PickUps : MonoBehaviour
 
     IEnumerator FireCountdown(string name)
     {
+        // Start the countdown for the Fire pickup
         rocketsActive = true;
         FindCorrectIndicator(name, true);
         yield return new WaitForSeconds(10);
@@ -228,6 +243,7 @@ public class PickUps : MonoBehaviour
 
     IEnumerator RocketSpawnCoroutine()
     {
+        // Coroutine to spawn rockets while active
         while (rocketsActive)
         {
             Instantiate(rocketPrefab, transform.position, Quaternion.identity);
@@ -240,6 +256,7 @@ public class PickUps : MonoBehaviour
 
     void CreateLightning()
     {
+        // Create lightning particles for the Lightning pickup
         EnemyController[] enemies = FindObjectsOfType<EnemyController>();
 
         foreach (EnemyController enemyController in enemies)
@@ -252,14 +269,15 @@ public class PickUps : MonoBehaviour
             }
         }
 
+        // Destroy the pickup object
         Destroy(gameObject);
     }
-
 
     #region Store and Set Variables
 
     void StoreAndSetPushForce(float oldForce, float newForce, bool changeValue)
     {
+        // Store and set the push force for the player
         if (changeValue)
         {
             oldPushForce = oldForce;
@@ -273,6 +291,7 @@ public class PickUps : MonoBehaviour
 
     void StoreAndSetMoveSpeed(float oldSpeed, bool changeValue)
     {
+        // Store and set the move speed for enemy controllers
         EnemyController[] enemyControllers = FindObjectsOfType<EnemyController>();
         if (changeValue)
         {

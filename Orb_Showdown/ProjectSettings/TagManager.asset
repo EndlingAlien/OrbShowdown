@@ -16,6 +16,9 @@ TagManager:
   - TurnedEnemy
   - MiniBoss
   - Boss
+  - OnBtn
+  - OffBtn
+  - Volume
   layers:
   - Default
   - TransparentFX

@@ -2,10 +2,13 @@ using UnityEngine;
 
 public class AudioPlayer : MonoBehaviour
 {
+    // Singleton instance
     public static AudioPlayer Instance;
 
+    // Reference to the AudioSource component
     [SerializeField] AudioSource audioSource;
 
+    // Awake is called when the script instance is being loaded
     void Awake()
     {
         // Check if an instance already exists
@@ -22,11 +25,5 @@ public class AudioPlayer : MonoBehaviour
             // If an instance already exists, destroy this GameObject
             Destroy(gameObject);
         }
-
     }
 }
-
-
-
-
-
