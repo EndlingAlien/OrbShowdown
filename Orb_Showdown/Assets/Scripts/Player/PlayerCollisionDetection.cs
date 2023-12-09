@@ -2,9 +2,11 @@ using UnityEngine;
 
 public class PlayerCollisionDetection : MonoBehaviour
 {
-    //can increase with permanent powerup
+
+    #region Variables
+
     [SerializeField] float pushForce;
-    public float PushForce { set { pushForce = value; } }
+    public float PushForce { get { return pushForce; } set { pushForce = value; } }
 
     float oldPushForce;
     public float OldPushForce { get { return oldPushForce; } }
@@ -12,6 +14,8 @@ public class PlayerCollisionDetection : MonoBehaviour
     string pickUpName;
     PickUps pickUps;
     Rigidbody enemyRb;
+
+    #endregion
 
     void OnTriggerEnter(Collider other)
     {

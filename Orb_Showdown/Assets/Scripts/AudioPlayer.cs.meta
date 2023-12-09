@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 21717e6e26975405a97b8a138638dd83
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - audioSource: {instanceID: 0}
+  - uIController: {instanceID: 0}
+  - onBtn: {fileID: 7043838161657655642, guid: 6838ac1044a3749aa9bed76c1006c038, type: 3}
+  - offBtn: {instanceID: 0}
+  - volumeSlider: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -4,7 +4,7 @@ public class EnemyController : MonoBehaviour
 {
     #region Variables
 
-    [SerializeField] float moveSpeed = 3.0f;
+    [SerializeField] float moveSpeed;
     public float MoveSpeed { get { return moveSpeed; } set { moveSpeed = value; } }
 
     bool hasTurned;
@@ -99,7 +99,6 @@ public class EnemyController : MonoBehaviour
             {
                 target = closestTarget;
                 lookDirection = (target.position - transform.position).normalized;
-                // Apply force for rolling
                 enemyRb.AddForce(lookDirection * moveSpeed, ForceMode.Impulse);
             }
         }

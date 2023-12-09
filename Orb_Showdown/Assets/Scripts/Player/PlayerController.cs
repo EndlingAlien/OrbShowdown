@@ -3,24 +3,33 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    //remove serialization in future, will change with powerup upgrade
-    [SerializeField] float speed = 2.5f;
+
+    #region Variables
+
+    float speed;
+    public float Speed { get { return speed; } set { speed = value; } }
+
     bool isBlue;
     Vector3 oldScale;
 
     Rigidbody playerRB;
     GameObject focalPoint;
     Animator animator;
+    DeathHandler death;
+
+    #endregion
 
     void Start()
     {
         playerRB = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
         focalPoint = GameObject.Find("Focal Point");
+        death = FindObjectOfType<DeathHandler>();
 
         Vector3 startPos = Vector3.zero;
         transform.position = startPos;
 
+        speed = 5f;
         oldScale = transform.localScale;
     }
 
@@ -32,6 +41,8 @@ public class PlayerController : MonoBehaviour
         KillPlayer();
     }
 
+    #region Update Methods
+
     void CheckIfBlue()
     {
         if (isBlue)
@@ -42,6 +53,7 @@ public class PlayerController : MonoBehaviour
         {
             transform.localScale = oldScale;
         }
+
     }
 
     void Move()
@@ -55,8 +67,21 @@ public class PlayerController : MonoBehaviour
     {
         if (transform.position.y < -10)
         {
+            death.PlayerHasDied();
             Destroy(gameObject);
         }
+    }
+
+    #endregion
+
+    #region For scripts
+
+    public void ResetPlayerPosition()
+    {
+        playerRB.velocity = Vector3.zero;
+        playerRB.angularVelocity = Vector3.zero;
+        Vector3 startPos = Vector3.up;
+        transform.position = startPos;
     }
 
     public void ActivatePickupEffect(string whichOne, bool activate)
@@ -71,4 +96,6 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(2.5f);
         animator.SetBool(name, false);
     }
+
+    #endregion
 }

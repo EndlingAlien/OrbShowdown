@@ -50,8 +50,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rocketPrefab: {fileID: 1806406264771925896, guid: 11ade941866f4406691ae4525db53507, type: 3}
-  starForce: 12
-  redPotionForce: 5
+  lightningParticlePrefab: {fileID: 8893630825815290970, guid: e3597bb81eefa4b82b30399bfc41ab8b, type: 3}
   enemy: {fileID: 1308029717, guid: 5a270cf22fbf94af4b120e4293a77543, type: 3}
 --- !u!1001 &2104556008921222660
 PrefabInstance:

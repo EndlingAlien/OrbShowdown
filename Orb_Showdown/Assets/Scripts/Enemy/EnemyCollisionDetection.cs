@@ -2,10 +2,8 @@ using UnityEngine;
 
 public class EnemyCollisionDetection : MonoBehaviour
 {
-    //only for boss and miniboss
-    //might remove access to this variable
-    [SerializeField] float pushForce;
-    public float PushForce { set { pushForce = value; } }
+    float pushForce;
+    public float PushForce { get { return pushForce; } set { pushForce = value; } }
 
     void OnCollisionEnter(Collision collision)
     {

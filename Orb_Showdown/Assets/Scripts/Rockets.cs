@@ -3,14 +3,19 @@ using UnityEngine;
 
 public class Rockets : MonoBehaviour
 {
-    //remove serialization in future, can change with pickup upgrade
-    [SerializeField] float moveSpeed;
+
+    float moveSpeed;
+    public float MoveSpeed { get { return moveSpeed; } set { moveSpeed = value; } }
 
     Rigidbody rocketRb;
     Transform target;
+    PickUps pickUps;
 
     void Start()
     {
+        pickUps = FindObjectOfType<PickUps>();
+        moveSpeed = 10;
+
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
         GameObject[] bosses = GameObject.FindGameObjectsWithTag("Boss");
         GameObject[] miniBoss = GameObject.FindGameObjectsWithTag("MiniBoss");
@@ -19,7 +24,6 @@ public class Rockets : MonoBehaviour
         enemies.CopyTo(allEnemies, 0);
         bosses.CopyTo(allEnemies, enemies.Length);
         miniBoss.CopyTo(allEnemies, enemies.Length + bosses.Length);
-
 
         if (allEnemies.Length > 0)
         {
@@ -41,12 +45,13 @@ public class Rockets : MonoBehaviour
                 rocketRb = GetComponent<Rigidbody>();
                 Vector3 lookDirection = (target.position - transform.position).normalized;
                 rocketRb.AddForce(lookDirection * moveSpeed, ForceMode.Impulse);
+                StartCoroutine(SelfDestructAfterDelay());
             }
 
         }
         else
         {
-            StartCoroutine(SelfDestruct());
+            SelfDestruct();
         }
     }
 
@@ -58,9 +63,16 @@ public class Rockets : MonoBehaviour
         }
     }
 
-    IEnumerator SelfDestruct()
+    void SelfDestruct()
     {
-        yield return new WaitForSeconds(3);
+        pickUps.RocketsActive = false;
         Destroy(gameObject);
     }
+
+    IEnumerator SelfDestructAfterDelay()
+    {
+        yield return new WaitForSeconds(5f);
+        Destroy(gameObject);
+    }
+
 }

@@ -10,19 +10,29 @@ public class PickUps : MonoBehaviour
     [SerializeField] GameObject rocketPrefab;
     [Space(5)]
 
+    [SerializeField] GameObject lightningParticlePrefab;
+
     [Tooltip("Script refrence to EnemyController")]
     [SerializeField] EnemyController enemy;
 
+    //for GameManager
+    float redPotionForce;
+    public float RedPotionForce { get { return redPotionForce; } set { redPotionForce = value; } }
+
+    float radDuration;
+    public float RadDuration { get { return radDuration; } set { radDuration = value; } }
+
+    float starDuration;
+    public float StarDuration { get { return starDuration; } set { starDuration = value; } }
+
+    //Pickup variables
     bool hasPickup;
-    public bool HasPickup { get { return hasPickup; } }
+    public bool HasPickup { get { return hasPickup; } set { hasPickup = value; } }
 
     bool radActive;
     public bool RadActive { get { return radActive; } }
 
-    //remove serialization in the future
-    //Pickup force variables
-    [SerializeField] float starForce = 12;
-    [SerializeField] float redPotionForce = 5;
+    float starForce;
 
     //Storage variables
     float oldPushForce;
@@ -34,12 +44,14 @@ public class PickUps : MonoBehaviour
 
     //Rocket variables
     bool rocketsActive;
+    public bool RocketsActive { get { return rocketsActive; } set { rocketsActive = value; } }
     Coroutine rocketsCoroutine;
 
-    //Player variables
+    //Script Refrences
     GameObject player;
     PlayerCollisionDetection playerCollision;
     PlayerController playerController;
+    SpawnManager spawnManager;
 
     #endregion
 
@@ -48,18 +60,32 @@ public class PickUps : MonoBehaviour
         player = GameObject.Find("Player");
         playerCollision = player.GetComponent<PlayerCollisionDetection>();
         playerController = player.GetComponent<PlayerController>();
+        spawnManager = FindObjectOfType<SpawnManager>();
 
+        SetDefaults();
+    }
+
+    void SetDefaults()
+    {
         indicatorPos = new Vector3(player.transform.position.x, indicatorHeight, player.transform.position.z);
 
         rocketsActive = false;
         radActive = false;
         hasPickup = false;
+
+        starForce = 12;
+        redPotionForce = 5;
+        radDuration = 8;
+        starDuration = 4;
     }
 
     void Update()
     {
-        indicatorPos = new Vector3(player.transform.position.x, indicatorHeight, player.transform.position.z);
-        transform.position = indicatorPos;
+        if (player != null)
+        {
+            indicatorPos = new Vector3(player.transform.position.x, indicatorHeight, player.transform.position.z);
+            transform.position = indicatorPos;
+        }
 
         if (rocketsActive && rocketsCoroutine == null)
         {
@@ -76,11 +102,7 @@ public class PickUps : MonoBehaviour
             switch (name)
             {
                 case "Trophy":
-                    //finish when spawn manager is working
-                    //kill all enemies and start new round,
-                    //corutine delay for start new round
-                    //want to see enemies blip out like bubbles
-                    Debug.Log("Picked Up Trophy, Does not have indicator");
+                    spawnManager.StartDeletingEnemies();
                     break;
 
                 case "Star":
@@ -108,11 +130,9 @@ public class PickUps : MonoBehaviour
                     break;
 
                 default:
-                    Debug.Log("Pickup not recognized!!!!");
                     break;
             }
             hasPickup = true;
-
         }
     }
 
@@ -145,18 +165,16 @@ public class PickUps : MonoBehaviour
 
     #region Coroutines
 
-    //upgrade duration
     IEnumerator StarCountdown(string name)
     {
         FindCorrectIndicator(name, true);
         StoreAndSetPushForce(playerCollision.OldPushForce, starForce, true);
-        yield return new WaitForSeconds(4);
+        yield return new WaitForSeconds(starDuration);
         StoreAndSetPushForce(oldPushForce, 0, false);
         FindCorrectIndicator(name, false);
         hasPickup = false;
     }
 
-    //upgrade force
     IEnumerator RedPotionCountdown(string name)
     {
         FindCorrectIndicator(name, true);
@@ -167,18 +185,16 @@ public class PickUps : MonoBehaviour
         hasPickup = false;
     }
 
-    //upgrade duration
     IEnumerator RadiationCountdown(string name)
     {
         radActive = true;
         FindCorrectIndicator(name, true);
-        yield return new WaitForSeconds(8);
+        yield return new WaitForSeconds(radDuration);
         FindCorrectIndicator(name, false);
         radActive = false;
         hasPickup = false;
     }
 
-    //cant upgrade
     IEnumerator BluePotionCountdown(string name)
     {
         playerController.ActivatePickupEffect("isBlue", true);
@@ -189,10 +205,10 @@ public class PickUps : MonoBehaviour
         hasPickup = false;
     }
 
-    //cant upgrade
     IEnumerator LightningCountdown(string name)
     {
         FindCorrectIndicator(name, true);
+        CreateLightning();
         StoreAndSetMoveSpeed(enemy.MoveSpeed, true);
         yield return new WaitForSeconds(6);
         StoreAndSetMoveSpeed(oldMoveSpeed, false);
@@ -200,7 +216,6 @@ public class PickUps : MonoBehaviour
         hasPickup = false;
     }
 
-    //upgrade force(rocket speed)
     IEnumerator FireCountdown(string name)
     {
         rocketsActive = true;
@@ -215,13 +230,31 @@ public class PickUps : MonoBehaviour
     {
         while (rocketsActive)
         {
-            GameObject newRocket = Instantiate(rocketPrefab, transform.position, Quaternion.identity);
+            Instantiate(rocketPrefab, transform.position, Quaternion.identity);
             yield return new WaitForSeconds(.5f);
         }
         rocketsCoroutine = null;
     }
 
     #endregion
+
+    void CreateLightning()
+    {
+        EnemyController[] enemies = FindObjectsOfType<EnemyController>();
+
+        foreach (EnemyController enemyController in enemies)
+        {
+            if (enemyController != null)
+            {
+                Vector3 particlePosition = new Vector3(enemyController.transform.position.x, 8f, enemyController.transform.position.z);
+
+                Instantiate(lightningParticlePrefab, particlePosition, Quaternion.identity);
+            }
+        }
+
+        Destroy(gameObject);
+    }
+
 
     #region Store and Set Variables
 

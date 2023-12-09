@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -26,17 +27,23 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] GameObject[] rarePickUps;
     [Space(10)]
 
-    [Header("Script Refrence")]
-    [SerializeField] UIController uiController;
-
-    [SerializeField ] bool playerChoosingPowerup = true;
+    bool playerChoosingPowerup;
     public bool PlayerChoosingPowerup { set { playerChoosingPowerup = value; } }
+
+    bool playerDied;
 
     List<GameObject> activeEnemies = new List<GameObject>();
     List<GameObject> activePickup = new List<GameObject>();
 
+    //Script refrences
+    UIController uiController;
+    GameManager gameManager;
+    PlayerController playerController;
+    PickUps pickups;
+
     //enemy rounds
-    int overallRoundNum = 0;
+    [SerializeField] int overallRoundNum = 0;
+    public int OverallRoundNum { get { return overallRoundNum; } }
     int bruteRoundNum = 0;
     int bossRoundNum = 0;
     int miniBossRoundNum = 0;
@@ -58,27 +65,45 @@ public class SpawnManager : MonoBehaviour
 
     #endregion
 
+    void Start()
+    {
+        gameManager = FindObjectOfType<GameManager>();
+        uiController = FindObjectOfType<UIController>();
+        playerController = FindObjectOfType<PlayerController>();
+        pickups = FindObjectOfType<PickUps>();
+
+        playerChoosingPowerup = true;
+        playerDied = false;
+    }
+
     void Update()
     {
-
-        if (activeEnemies.Count == 0)
+        if (!playerDied)
         {
-            pauseTime = true;
-            ShowCorrectCanvas();
+            if (activeEnemies.Count == 0 && gameManager.IsPlaying)
+            {
+                pauseTime = true;
+                playerController.ResetPlayerPosition();
+                ShowCorrectCanvas();
+            }
+            else
+            {
+                pauseTime = false;
+            }
+
+            if (!pauseTime && gameManager.IsPlaying)
+            {
+                PickupTimer();
+            }
+
+            if (!playerChoosingPowerup)
+            {
+                InstantiateCorrectEnemy();
+            }
         }
         else
         {
-            pauseTime = false;
-        }
-
-        if (!pauseTime)
-        {
-            PickupTimer();
-        }
-
-        if (!playerChoosingPowerup)
-        {
-            InstantiateCorrectEnemy();
+            CheckForActive();
         }
     }
 
@@ -115,18 +140,46 @@ public class SpawnManager : MonoBehaviour
         if (activeEnemies.Count == 0)
         {
             overallRoundNum++;
+            StartCoroutine(UpdateRound());
+        }
+    }
 
-            if (overallRoundNum % 10 == 0)
+    IEnumerator UpdateRound()
+    {
+        playerChoosingPowerup = true;
+        uiController.UpdateRoundNum(overallRoundNum);
+
+        yield return new WaitForSeconds(5);
+
+        if (overallRoundNum % 10 == 0)
+        {
+            ActivateBossFight();
+        }
+        else if (overallRoundNum % 5 == 0)
+        {
+            ActivateMiniBossFight();
+        }
+        else
+        {
+            ActivateBruteEnemy();
+        }
+    }
+
+    void CheckForActive()
+    {
+        if (activeEnemies.Count > 0)
+        {
+            foreach (GameObject enemy in activeEnemies)
             {
-                ActivateBossFight();
+                Destroy(enemy);
             }
-            else if (overallRoundNum % 5 == 0)
+        }
+
+        if (activePickup.Count > 0)
+        {
+            foreach (GameObject pickup in activePickup)
             {
-                ActivateMiniBossFight();
-            }
-            else
-            {
-                ActivateBruteEnemy();
+                Destroy(pickup);
             }
         }
     }
@@ -148,8 +201,6 @@ public class SpawnManager : MonoBehaviour
         SpawnEnemyWave(bodyguardNum * bossRoundNum, bodyguardPrefab);
         SpawnEnemyWave(minionsNum * bossRoundNum, minionPrefab);
     }
-
-
 
     void ActivateMiniBossFight()
     {
@@ -176,8 +227,22 @@ public class SpawnManager : MonoBehaviour
     {
         for (int i = 0; i < enemiesToSpawn; i++)
         {
-            GameObject newEnemy = Instantiate(prefab, GenerateSpawnPos(), Quaternion.identity);
-            activeEnemies.Add(newEnemy);
+            if (prefab == brutePrefab)
+            {
+                GameObject bruteEnemy = Instantiate(prefab, GenerateSpawnPos(), Quaternion.identity);
+                bruteEnemy.GetComponent<EnemyController>().MoveSpeed += 0.08f * bossRoundNum;
+                activeEnemies.Add(bruteEnemy);
+            }
+            else
+            {
+                GameObject newEnemy = Instantiate(prefab, GenerateSpawnPos(), Quaternion.identity);
+                if (newEnemy.GetComponent<EnemyCollisionDetection>() != null)
+                {
+                    newEnemy.GetComponent<EnemyCollisionDetection>().PushForce = bossRoundNum;
+                }
+                activeEnemies.Add(newEnemy);
+            }
+
         }
         playerChoosingPowerup = true;
     }
@@ -206,7 +271,7 @@ public class SpawnManager : MonoBehaviour
 
     void SpawnPickUp(GameObject[] pickupList)
     {
-        if (activePickup.Count >= 1)
+        if (activePickup.Count >= 2)
         {
             RemovePickUpFromList();
         }
@@ -239,7 +304,6 @@ public class SpawnManager : MonoBehaviour
         }
         while (currentAttempt < maxAttempts);
 
-        // Clear history and reset previous lane if the maximum attempts are reached
         if (currentAttempt >= maxAttempts)
         {
             pickupHistory.Clear();
@@ -251,8 +315,11 @@ public class SpawnManager : MonoBehaviour
 
     void RemovePickUpFromList()
     {
-        Destroy(activePickup[0]);
-        activePickup.Clear();
+        if (activePickup.Count > 0)
+        {
+            Destroy(activePickup[0]);
+            activePickup.Clear();
+        }
     }
 
     #endregion
@@ -267,9 +334,56 @@ public class SpawnManager : MonoBehaviour
         return spawnPos;
     }
 
+    #region For Scripts
+
     public void RemoveEnemyFromList(GameObject enemyToRemove)
     {
         activeEnemies.Remove(enemyToRemove);
     }
+
+    public void PlayerDeath()
+    {
+        playerDied = true;
+        foreach (GameObject enemy in activeEnemies)
+        {
+            Destroy(enemy);
+        }
+        activeEnemies.Clear();
+        GameObject ghost = new GameObject("GhostEnemy");
+        activeEnemies.Add(ghost);
+        RemovePickUpFromList();
+    }
+
+    #endregion
+
+    #region Trophy Pickup
+
+    public void StartDeletingEnemies()
+    {
+        StartCoroutine(DeleteEnemiesRoutine());
+    }
+
+    IEnumerator DeleteEnemiesRoutine()
+    {
+        while (activeEnemies.Count > 0)
+        {
+            yield return new WaitForSeconds(0.1f);
+            KillOne();
+        }
+
+        pickups.HasPickup = false;
+    }
+
+    void KillOne()
+    {
+        if (activeEnemies.Count > 0)
+        {
+            GameObject enemy = activeEnemies[0];
+            activeEnemies.RemoveAt(0);
+            Destroy(enemy);
+        }
+    }
+
+    #endregion
 
 }
