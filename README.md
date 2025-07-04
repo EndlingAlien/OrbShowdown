@@ -1,12 +1,12 @@
-# Orb Showdown
+# Balls of Fury
 
-**Orb Showdown** is a fast-paced arcade-style Unity game where chaotic orbs clash in a colorful arena. What started as a simple tutorial evolved into a fully playable, polished project with a tight gameplay loop and custom-built systems.
+**Balls of Fury** (Orb Showdown) is a fast-paced arcade-style Unity game where chaotic orbs clash in a colorful arena. What started as a simple tutorial evolved into a fully playable, polished project with a tight gameplay loop and custom-built systems.
 
 ---
 
 ## Why I Made This
 
-This was one of my first real Unity projects. I started with a basic tutorial but broke away from the script early—customizing mechanics, designing the UI, and crafting my own game loop. It marked the beginning of my journey into game development.
+This was one of my first real Unity projects. I started with a basic tutorial but broke away from the script early, customizing mechanics, designing the UI, and crafting my own game loop. It marked the beginning of my journey into game development.
 
 ---
 
@@ -24,8 +24,13 @@ This was one of my first real Unity projects. I started with a basic tutorial bu
 
 - Unity (2021.x)
 - C#
-- Unity’s UI system
-
+- Unity
+  - Basic Animation
+  - Particles & VFX
+  - Custom UI
+  - Materials
+  - Custom Cameras
+    
 ---
 
 ## Status
